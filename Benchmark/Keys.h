@@ -14,7 +14,7 @@ namespace Benchmark
 		using KVContainer = std::vector<std::pair<KeyType, ValueType>>;
 
 		explicit Keys(
-			uint32_t numOfPairs = 1'000'000,
+			uint32_t numOfPairs = 5'000'000,
 			uint32_t maxKeySize = 20,
 			uint32_t maxValueSize = 120,
 			size_t range_size = 1024,
