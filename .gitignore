@@ -416,3 +416,10 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# build folders
+out/
+vs2026/
+xcode/
+make/
+ninja/
