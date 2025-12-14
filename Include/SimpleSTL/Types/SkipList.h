@@ -63,9 +63,9 @@ template<
 	class Value,
 	class Compare = std::less<Key>,
 	class Alloc = std::allocator<std::pair<const Key, Value>>,
-	int MaxLevel = 16,
+	int MaxLevel = 12,
 	int PNumerator = 1,
-	int PDenominator = 2
+	int PDenominator = 4
 >
 class SkipList
 {

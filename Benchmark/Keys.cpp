@@ -34,7 +34,7 @@ Benchmark::Keys::Keys(uint32_t numOfPairs, uint32_t maxKeySize, uint32_t maxValu
 
 	m_storge.reserve(numOfPairs);
 	for (uint32_t i{}; i < m_numOfPairs; ++i)
-		m_storge.push_back({ std::move(random_word(maxKeySize / 2, maxKeySize)), std::move(random_word(maxValueSize / 2, maxValueSize)) });
+		m_storge.push_back({ std::move(random_word(maxKeySize / 4, maxKeySize)), std::move(random_word(maxValueSize / 4, maxValueSize)) });
 
 	pick_new_range();
 }
@@ -52,6 +52,21 @@ const Benchmark::Keys::KeyType& Benchmark::Keys::PickRandomKey()
 	++m_range_offset;
 
 	return key;
+}
+
+const std::pair<Benchmark::Keys::KeyType, Benchmark::Keys::ValueType>& Benchmark::Keys::PickRandomKV()
+{
+	assert(m_picker_enabled);
+
+	if (m_range_offset >= m_range_size)
+		pick_new_range();
+
+	size_t idx = m_shuffle ? m_permutations[m_range_offset] : m_range_offset;
+
+	const auto& kv = m_storge[m_range_start + idx];
+	++m_range_offset;
+
+	return kv;
 }
 
 void Benchmark::Keys::pick_new_range()
