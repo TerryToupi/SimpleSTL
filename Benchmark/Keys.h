@@ -25,10 +25,11 @@ namespace Benchmark
 		const KVContainer& GetKeys() const { return m_storge; }
 		uint32_t GetNumOfKeys()		 const { return m_numOfPairs; };
 
-		const KeyType& PickRandomKey();
-		const std::pair<KeyType, ValueType>& PickRandomKV();
+		const KeyType&							PickRandomKey();
+		const std::pair<KeyType, ValueType>&	PickRandomKV();
 
 	private:
+		void build_access_tape();
 		void pick_new_range();
 		size_t zipf_sample(size_t max_start);
 
@@ -40,6 +41,10 @@ namespace Benchmark
 		uint8_t m_maxKeySize = 0;
 		uint8_t m_maxValueSize = 0;
 		KVContainer m_storge{};
+
+		std::vector<uint32_t> m_access_tape{};
+		static constexpr uint32_t m_min_freq = 12;
+		static constexpr uint32_t m_max_freq = 1024;
 
 		bool m_picker_enabled = false;
 		bool m_shuffle = false;

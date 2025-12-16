@@ -36,6 +36,7 @@ Benchmark::Keys::Keys(uint32_t numOfPairs, uint32_t maxKeySize, uint32_t maxValu
 	for (uint32_t i{}; i < m_numOfPairs; ++i)
 		m_storge.push_back({ std::move(random_word(maxKeySize / 4, maxKeySize)), std::move(random_word(maxValueSize / 4, maxValueSize)) });
 
+	build_access_tape();
 	pick_new_range();
 }
 
@@ -48,7 +49,8 @@ const Benchmark::Keys::KeyType& Benchmark::Keys::PickRandomKey()
 
 	size_t idx = m_shuffle ? m_permutations[m_range_offset] : m_range_offset;
 
-	const auto& key = m_storge[m_range_start + idx].first;
+	const auto& key_idx = m_access_tape[m_range_start + idx];
+	const auto& key = m_storge[key_idx].first;
 	++m_range_offset;
 
 	return key;
@@ -63,15 +65,49 @@ const std::pair<Benchmark::Keys::KeyType, Benchmark::Keys::ValueType>& Benchmark
 
 	size_t idx = m_shuffle ? m_permutations[m_range_offset] : m_range_offset;
 
-	const auto& kv = m_storge[m_range_start + idx];
+	const auto& kv_idx = m_access_tape[m_range_start + idx];
+	const auto& kv = m_storge[kv_idx];
 	++m_range_offset;
 
 	return kv;
 }
 
+static inline double zipf_weight(uint32_t rank, double theta)
+{
+	return 1.0 / std::pow(rank + 1, theta);
+}
+
+void Benchmark::Keys::build_access_tape()
+{
+	std::vector<uint32_t> frequencies(m_numOfPairs);
+	
+	double max_w = zipf_weight(0.0f, m_theta);
+	for (uint32_t i = 0; i < m_numOfPairs; ++i)
+	{
+		double w = zipf_weight(i, m_theta) / max_w;
+		auto freq = static_cast<uint32_t>(m_min_freq + w * (m_max_freq - m_min_freq));
+		frequencies[i] = std::max(freq, m_min_freq);
+	}
+	
+	size_t total = 0;
+	for (auto f : frequencies)
+		total += f;
+
+	m_access_tape.clear();
+	m_access_tape.reserve(total);
+
+	for (uint32_t key_id = 0; key_id < m_numOfPairs; ++key_id)
+	{
+		for (uint32_t i = 0; i < frequencies[key_id]; ++i)
+			m_access_tape.push_back(key_id);
+	}
+
+	std::shuffle(m_access_tape.begin(), m_access_tape.end(), m_rng);
+}
+
 void Benchmark::Keys::pick_new_range()
 {
-	const size_t max_start = m_storge.size() - m_range_size;
+	const size_t max_start = m_access_tape.size() - m_range_size;
 
 	m_range_start = zipf_sample(max_start + 1);
 	m_range_offset = 0;

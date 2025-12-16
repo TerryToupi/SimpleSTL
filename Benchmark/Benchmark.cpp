@@ -107,7 +107,7 @@ void benchmark3()
 	Benchmark::Keys keys{};
 
 	// optimized less funciton
-	static constexpr uint8_t CHARACTERS_TO_COMPARE = 2;
+	static constexpr uint8_t CHARACTERS_TO_COMPARE = 1;
 	auto optimized_less = [](const std::string& a, const std::string& b)
 		{
 			size_t n = std::min<size_t>(CHARACTERS_TO_COMPARE, std::min(a.size(), b.size()));
@@ -451,7 +451,7 @@ int main()
 	benchmark1();
 	benchmark2();
 	benchmark3();
-	benchmark4();
+	//benchmark4();
 
 	return 1;
 }
